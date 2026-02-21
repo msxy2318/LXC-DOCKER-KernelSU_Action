@@ -70,20 +70,22 @@ jobs:
       with:
         key: build-kernel-mido-kernel
         max-size: 2G
-
+        
     - name: 开始编译内核
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
         export PATH=$GITHUB_WORKSPACE/kernel_workspace/clang-aosp/clang-r416183b/bin:$PATH
         make O=out ARCH=arm64 ${{ env.KERNEL_CONFIG }}
         if [ "${{ env.LLVM_CONFIG }}" = "y" ]; then
+            make O=out ARCH=arm64 olddefconfig
             make -j$(nproc --all) \
-                CC="ccache clang -fuse-ld=lld" \    # <-- 关键修改
+                CC="ccache clang -fuse-ld=lld" \
                 O=out ARCH=arm64 \
                 CROSS_COMPILE="aarch64-linux-gnu-" \
                 CROSS_COMPILE_ARM32="arm-linux-gnueabi-" \
                 LLVM=1 LLVM_IAS=1
         else
+            make O=out ARCH=arm64 olddefconfig
             make -j$(nproc --all) \
                 CC="ccache clang" \
                 LD=arm-linux-gnueabi-ld \
