@@ -127,9 +127,11 @@ jobs:
         # 强制使用正确的链接器（32 位 ARM GNU ld）
         export LD=arm-linux-gnueabi-ld
     
+        # 添加 KCFLAGS 禁用特定警告（解决结构体初始化错误）
+        export KCFLAGS="-Wno-default-const-init-field-unsafe"
+    
         make -s -j$(nproc --all) O=out ARCH=arm64 ${{ env.KERNEL_CONFIG }}
     
-        # 修正条件判断语法（注意空格和引号）
         if [ "${{ env.LLVM_CONFIG }}" = "y" ]; then
           make -j$(nproc --all) CC="ccache clang" CXX=clang++ O=out ARCH=arm64 CLANG_TRIPLE="aarch64-linux-gnu-" CROSS_COMPILE="aarch64-linux-gnu-" CROSS_COMPILE_ARM32="arm-linux-gnueabi-" LLVM=1 LLVM_IAS=1
         else
