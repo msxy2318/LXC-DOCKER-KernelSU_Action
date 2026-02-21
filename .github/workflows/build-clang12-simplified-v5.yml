@@ -79,7 +79,7 @@ jobs:
         if [ "${{ env.LLVM_CONFIG }}" = "y" ]; then
             make O=out ARCH=arm64 olddefconfig
             make -j$(nproc --all) \
-                CC="ccache clang -fuse-ld=lld -Wno-error -Wno-address-of-packed-member -Wno-int-in-bool-context" \
+                CC="ccache clang -fuse-ld=lld -Wno-error -Wno-address-of-packed-member -Wno-int-in-bool-context -Wno-asm-operand-widths" \
                 O=out ARCH=arm64 \
                 CROSS_COMPILE="aarch64-linux-gnu-" \
                 CROSS_COMPILE_ARM32="arm-linux-gnueabi-" \
