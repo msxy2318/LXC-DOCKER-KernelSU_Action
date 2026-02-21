@@ -76,11 +76,14 @@ jobs:
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
         export PATH=$GITHUB_WORKSPACE/kernel_workspace/clang-aosp/clang-r416183b/bin:$PATH
         make O=out ARCH=arm64 ${{ env.KERNEL_CONFIG }}
+        # 禁用 CONFIG_WERROR，避免警告被当作错误
+        cd out
+        ../scripts/config --file .config --disable WERROR
+        cd ..
         if [ "${{ env.LLVM_CONFIG }}" = "y" ]; then
             make O=out ARCH=arm64 olddefconfig
             make -j$(nproc --all) \
                 CC="ccache clang -fuse-ld=lld" \
-                KCFLAGS="-Wno-error -Wno-address-of-packed-member -Wno-int-in-bool-context -Wno-asm-operand-widths" \
                 O=out ARCH=arm64 \
                 CROSS_COMPILE="aarch64-linux-gnu-" \
                 CROSS_COMPILE_ARM32="arm-linux-gnueabi-" \
@@ -90,7 +93,6 @@ jobs:
             make -j$(nproc --all) \
                 CC="ccache clang" \
                 LD=arm-linux-gnueabi-ld \
-                KCFLAGS="-Wno-error -Wno-address-of-packed-member -Wno-int-in-bool-context -Wno-asm-operand-widths" \
                 O=out ARCH=arm64 \
                 CROSS_COMPILE="aarch64-linux-gnu-" \
                 CROSS_COMPILE_ARM32="arm-linux-gnueabi-"
