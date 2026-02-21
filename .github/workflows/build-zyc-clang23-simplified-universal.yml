@@ -94,18 +94,18 @@ jobs:
         key: build-kernel-mido-kernel
         max-size: 2G
 
-- name: 检查链接器
-  run: |
-    echo "=== 列出 clang-zyc/bin 下的链接器相关文件 ==="
-    ls -l $GITHUB_WORKSPACE/kernel_workspace/clang-zyc/bin/ld*
-    echo "=== 检查 ld.lld 支持的仿真模式 ==="
-    $GITHUB_WORKSPACE/kernel_workspace/clang-zyc/bin/ld.lld -V || true
-    echo "=== 检查系统默认 ld  ==="
-    which ld
-    ld -V || true
-    echo "=== 检查交叉编译工具链的 ld  ==="
-    aarch64-linux-gnu-ld -V || true
-    arm-linux-gnueabi-ld -V || true
+    - name: 检查链接器
+      run: |
+        echo "=== 列出 clang-zyc/bin 下的链接器相关文件 ==="
+        ls -l $GITHUB_WORKSPACE/kernel_workspace/clang-zyc/bin/ld*
+        echo "=== 检查 ld.lld 支持的仿真模式 ==="
+        $GITHUB_WORKSPACE/kernel_workspace/clang-zyc/bin/ld.lld -V || true
+        echo "=== 检查系统默认 ld  ==="
+        which ld
+        ld -V || true
+        echo "=== 检查交叉编译工具链的 ld  ==="
+        aarch64-linux-gnu-ld -V || true
+        arm-linux-gnueabi-ld -V || true
 
 
     - name: 开始编译内核
