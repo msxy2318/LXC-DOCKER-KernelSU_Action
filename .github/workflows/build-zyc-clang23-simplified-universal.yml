@@ -119,7 +119,7 @@ jobs:
         export KBUILD_BUILD_HOST=17
         export KBUILD_BUILD_USER=HyperPower
     
-        # 避免 clang 目录下的 ld 干扰（它不支持 ARM）
+        # 避免 clang 目录下的 ld 干扰
         if [ -f $GITHUB_WORKSPACE/kernel_workspace/clang-zyc/bin/ld ]; then
           mv $GITHUB_WORKSPACE/kernel_workspace/clang-zyc/bin/ld $GITHUB_WORKSPACE/kernel_workspace/clang-zyc/bin/ld.bak
         fi
@@ -127,19 +127,18 @@ jobs:
         # 强制使用正确的链接器（32 位 ARM GNU ld）
         export LD=arm-linux-gnueabi-ld
     
-        # 添加 KCFLAGS 禁用与 const 未初始化相关的警告
-        export KCFLAGS="-Wno-default-const-init-field-unsafe -Wno-default-const-init-var-unsafe"
+        # 添加 KCFLAGS 禁用多个 Clang 23 引入的警告
+        export KCFLAGS="-Wno-default-const-init-field-unsafe -Wno-default-const-init-var-unsafe -Wno-implicit-enum-enum-cast"
     
-        # 打印确认
         echo "KCFLAGS=$KCFLAGS"
     
         make -s -j$(nproc --all) O=out ARCH=arm64 ${{ env.KERNEL_CONFIG }}
     
         if [ "${{ env.LLVM_CONFIG }}" = "y" ]; then
-          # 降低并发数以缓解 Broken pipe 问题
-          make -j4 CC="ccache clang" CXX=clang++ O=out ARCH=arm64 CLANG_TRIPLE="aarch64-linux-gnu-" CROSS_COMPILE="aarch64-linux-gnu-" CROSS_COMPILE_ARM32="arm-linux-gnueabi-" LLVM=1 LLVM_IAS=1
+          # 进一步降低并发数，缓解 Broken pipe 问题
+          make -j2 CC="ccache clang" CXX=clang++ O=out ARCH=arm64 CLANG_TRIPLE="aarch64-linux-gnu-" CROSS_COMPILE="aarch64-linux-gnu-" CROSS_COMPILE_ARM32="arm-linux-gnueabi-" LLVM=1 LLVM_IAS=1
         else
-          make -j4 CC="ccache clang" CXX=clang++ O=out ARCH=arm64 CLANG_TRIPLE="aarch64-linux-gnu-" CROSS_COMPILE="aarch64-linux-gnu-" CROSS_COMPILE_ARM32="arm-linux-gnueabi-"
+          make -j2 CC="ccache clang" CXX=clang++ O=out ARCH=arm64 CLANG_TRIPLE="aarch64-linux-gnu-" CROSS_COMPILE="aarch64-linux-gnu-" CROSS_COMPILE_ARM32="arm-linux-gnueabi-"
         fi
     
     
