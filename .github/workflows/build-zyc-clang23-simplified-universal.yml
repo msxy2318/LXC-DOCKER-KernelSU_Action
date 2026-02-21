@@ -114,12 +114,22 @@ jobs:
         export PATH=$GITHUB_WORKSPACE/kernel_workspace/clang-zyc/bin:$PATH
         export KBUILD_BUILD_HOST=17
         export KBUILD_BUILD_USER=HyperPower
-        export LD=ld.lld
+    
+        # 避免 clang 目录下的 ld 干扰（它不支持 ARM）
+        if [ -f $GITHUB_WORKSPACE/kernel_workspace/clang-zyc/bin/ld ]; then
+          mv $GITHUB_WORKSPACE/kernel_workspace/clang-zyc/bin/ld $GITHUB_WORKSPACE/kernel_workspace/clang-zyc/bin/ld.bak
+        fi
+    
+        # 强制使用正确的链接器（32 位 ARM GNU ld）
+        export LD=arm-linux-gnueabi-ld
+    
         make -s -j$(nproc --all) O=out ARCH=arm64 ${{ env.KERNEL_CONFIG }}
+    
+        # 修正条件判断语法（注意空格和引号）
         if [ "${{ env.LLVM_CONFIG }}" = "y" ]; then
-        make -j$(nproc --all) CC="ccache clang" CXX=clang++ O=out ARCH=arm64 CLANG_TRIPLE="aarch64-linux-gnu-" CROSS_COMPILE="aarch64-linux-gnu-" CROSS_COMPILE_ARM32="arm-linux-gnueabi-" LLVM=1 LLVM_IAS=1
+          make -j$(nproc --all) CC="ccache clang" CXX=clang++ O=out ARCH=arm64 CLANG_TRIPLE="aarch64-linux-gnu-" CROSS_COMPILE="aarch64-linux-gnu-" CROSS_COMPILE_ARM32="arm-linux-gnueabi-" LLVM=1 LLVM_IAS=1
         else
-        make -j$(nproc --all) CC="ccache clang" CXX=clang++ O=out ARCH=arm64 CLANG_TRIPLE="aarch64-linux-gnu-" CROSS_COMPILE="aarch64-linux-gnu-" CROSS_COMPILE_ARM32="arm-linux-gnueabi-"
+          make -j$(nproc --all) CC="ccache clang" CXX=clang++ O=out ARCH=arm64 CLANG_TRIPLE="aarch64-linux-gnu-" CROSS_COMPILE="aarch64-linux-gnu-" CROSS_COMPILE_ARM32="arm-linux-gnueabi-"
         fi
                 
     - name: 准备打包内核
