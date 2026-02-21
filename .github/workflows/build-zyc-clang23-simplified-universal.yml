@@ -107,6 +107,10 @@ jobs:
         aarch64-linux-gnu-ld -V || true
         arm-linux-gnueabi-ld -V || true
 
+    - name: 验证链接器
+      run: |
+        echo "当前 LD = $LD"
+        arm-linux-gnueabi-ld -V | head -n 10
 
     - name: 开始编译内核
       run: |
