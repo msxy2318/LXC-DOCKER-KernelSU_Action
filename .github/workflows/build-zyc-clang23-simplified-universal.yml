@@ -112,6 +112,17 @@ jobs:
         echo "当前 LD = $LD"
         arm-linux-gnueabi-ld -V | head -n 10
 
+    - name: 修复设备树错误
+      run: |
+        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel/arch/arm64/boot/dts/qcom
+        # 删除导致错误的设备树文件（如果你不需要该特定设备）
+        if [ -f sdm845-v2-qvr-evt.dts ]; then
+          rm -f sdm845-v2-qvr-evt.dts
+          echo "已删除 sdm845-v2-qvr-evt.dts"
+        else
+          echo "未找到 sdm845-v2-qvr-evt.dts，无需处理"
+        fi
+
     - name: 开始编译内核
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
