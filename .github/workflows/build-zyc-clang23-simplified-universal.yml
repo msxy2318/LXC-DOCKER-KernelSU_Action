@@ -76,15 +76,13 @@ jobs:
     - name: 修复设备树错误
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel/arch/arm64/boot/dts/qcom
-        # 删除有问题的设备树源文件（如果存在）
-        if [ -f sdm845-v2-qvr-evt.dts ]; then
-          rm -f sdm845-v2-qvr-evt.dts
-          echo "已删除 sdm845-v2-qvr-evt.dts"
-        fi
+        # 删除所有可能导致问题的 qvr 设备树源文件
+        rm -f sdm845-v2-qvr-*.dts
+        echo "已删除 sdm845-v2-qvr-*.dts 文件"
         # 从 Makefile 中移除对应的构建目标
         if [ -f Makefile ]; then
-          sed -i '/sdm845-v2-qvr-evt.dtb/d' Makefile
-          echo "已从 Makefile 中移除 sdm845-v2-qvr-evt.dtb"
+          sed -i '/sdm845-v2-qvr-.*\.dtb/d' Makefile
+          echo "已从 Makefile 中移除 sdm845-v2-qvr-*.dtb 条目"
         fi
 
     - name: 配置 ksu
