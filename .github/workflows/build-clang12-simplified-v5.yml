@@ -30,6 +30,7 @@ jobs:
         sudo apt-get update
         sudo -E apt-get -y -qq install git make bc bison ccache openssl zip kmod cpio flex libelf-dev curl libssl-dev libtfm-dev wget device-tree-compiler ca-certificates python3 binutils binutils-aarch64-linux-gnu binutils-arm-linux-gnueabi
         sudo -E apt-get -y -qq install build-essential gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi gcc-arm-linux-gnueabihf
+        sudo -E apt-get -y -qq install lld
         mkdir -p $GITHUB_WORKSPACE/kernel_workspace
     
     - name: 下载谷歌clang12编译器
@@ -78,7 +79,6 @@ jobs:
         if [ "${{ env.LLVM_CONFIG }}" = "y" ]; then
             make -j$(nproc --all) \
                 CC="ccache clang" \
-                LD=arm-linux-gnueabi-ld \
                 O=out ARCH=arm64 \
                 CROSS_COMPILE="aarch64-linux-gnu-" \
                 CROSS_COMPILE_ARM32="arm-linux-gnueabi-" \
