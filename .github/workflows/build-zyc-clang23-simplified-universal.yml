@@ -71,7 +71,21 @@ jobs:
         sed -i "s/CONFIG_CC_STACKPROTECTOR_STRONG=y/# CONFIG_CC_STACKPROTECTOR_STRONG is not set/g" arch/arm64/configs/${{ env.KERNEL_CONFIG }}
         wget https://github.com/ego-taboo/LXC-DOCKER-KernelSU_Action/releases/download/1.0.0/clangfix2.sh
         chmod u+x clangfix2.sh
-        ./clangfix2.sh        
+        ./clangfix2.sh       
+
+    - name: 修复设备树错误
+      run: |
+        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel/arch/arm64/boot/dts/qcom
+        # 删除有问题的设备树源文件（如果存在）
+        if [ -f sdm845-v2-qvr-evt.dts ]; then
+          rm -f sdm845-v2-qvr-evt.dts
+          echo "已删除 sdm845-v2-qvr-evt.dts"
+        fi
+        # 从 Makefile 中移除对应的构建目标
+        if [ -f Makefile ]; then
+          sed -i '/sdm845-v2-qvr-evt.dtb/d' Makefile
+          echo "已从 Makefile 中移除 sdm845-v2-qvr-evt.dtb"
+        fi
 
     - name: 配置 ksu
       if: env.ENABLE_KERNELSU == 'true'
@@ -112,16 +126,6 @@ jobs:
         echo "当前 LD = $LD"
         arm-linux-gnueabi-ld -V | head -n 10
 
-    - name: 修复设备树错误
-      run: |
-        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel/arch/arm64/boot/dts/qcom
-        # 删除导致错误的设备树文件（如果你不需要该特定设备）
-        if [ -f sdm845-v2-qvr-evt.dts ]; then
-          rm -f sdm845-v2-qvr-evt.dts
-          echo "已删除 sdm845-v2-qvr-evt.dts"
-        else
-          echo "未找到 sdm845-v2-qvr-evt.dts，无需处理"
-        fi
 
     - name: 开始编译内核
       run: |
