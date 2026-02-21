@@ -78,7 +78,7 @@ jobs:
         make O=out ARCH=arm64 ${{ env.KERNEL_CONFIG }}
         if [ "${{ env.LLVM_CONFIG }}" = "y" ]; then
             make -j$(nproc --all) \
-                CC="ccache clang" \
+                CC="ccache clang -fuse-ld=lld" \    # <-- 关键修改
                 O=out ARCH=arm64 \
                 CROSS_COMPILE="aarch64-linux-gnu-" \
                 CROSS_COMPILE_ARM32="arm-linux-gnueabi-" \
